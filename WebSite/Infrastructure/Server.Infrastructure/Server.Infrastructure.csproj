@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>SA1633;SA1652;SA1124</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MathNet.Numerics" Version="4.11.0" />
+    <PackageReference Include="Sendgrid" Version="9.8.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="8.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DataBaseCore\Server.DataBaseCore\Server.DataBaseCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MWArray">
+      <HintPath>..\..\Server\matlablibs\MWArray.dll</HintPath>
+    </Reference>
+    <Reference Include="qrs">
+      <HintPath>..\..\Server\matlablibs\qrs.dll</HintPath>
+    </Reference>
+    <Reference Include="RPeaksRecognizeDLL">
+      <HintPath>..\..\Server\matlablibs\RPeaksRecognizeDLL.dll</HintPath>
+    </Reference>
+    <Reference Include="RPeaksRecognizeDLLNative">
+      <HintPath>..\..\Server\matlablibs\RPeaksRecognizeDLLNative.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
