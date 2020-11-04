@@ -3,12 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using MathNet.Numerics;
     using MathNet.Numerics.Statistics;
 
     public static class Correlation
     {
 
-        //алгоритм пирсона (один из вариантов алгоритма корреляции)
+        /// <summary>
+        /// Производит корелляцию по алгоритму Пирсона
+        /// </summary>
+        /// <param name="dataA"> Первый сегмент </param>
+        /// <param name="dataB"> Второй сегмент </param>
+        /// <returns> Число корелляции </returns>
         public static double Pearson(IEnumerable<double> dataA, IEnumerable<double> dataB)
         {
             int n = 0;
@@ -40,13 +46,18 @@
             return r / (n - 1);
         }
 
-        //алгоритм корреляции
+        /// <summary>
+        /// Алгоритм кореляции
+        /// </summary>
+        /// <param name="allPoints"> Все точки </param>
+        /// <param name="rPeaks">р Пики </param>
+        /// <returns> Точки корреляции </returns>
         public static List<double> CorrelationPoints(List<string> allPoints, List<string> rPeaks)
         {
-
             List<double> firstSegment = new List<double>();
             List<double> secondSegment = new List<double>();
             List<double> corrPoints = new List<double>();
+            List<List<double>> Segments = new List<List<double>>();
             for (int i = 0; i < rPeaks.Count - 2; i++)
             {
                 int j = i + 1;
@@ -112,32 +123,36 @@
 
                                 difference = (endCount - startCount) / ((endCount + startCount) / 2);
                             }
+                            secondSegment.Add(difference);
                         } // Проверка на одинаковое кол-во элементов
 
-                        double corrCoefPoint = Correlation.Pearson(firstSegment, secondSegment);
-
-                        if (corrCoefPoint > 0)
-                        {
-                            corrCoefPoint -= difference;
-                            if (corrCoefPoint < 0)
-                            {
-                                corrCoefPoint = 0;
-                            }
-                        }
-                        else if (corrCoefPoint < 0)
-                        {
-                            corrCoefPoint += difference;
-                            if (corrCoefPoint > 0)
-                            {
-                                corrCoefPoint = 0;
-                            }
-                        }
-
-                        corrCoefPoint = Math.Abs(corrCoefPoint);
-
-                        corrPoints.Add(corrCoefPoint);
+                        Segments.Add(secondSegment);
                         firstSegment.Clear();
                         secondSegment.Clear();
+                        //double corrCoefPoint = Correlation.Pearson(firstSegment, secondSegment);
+
+                        //if (corrCoefPoint > 0)
+                        //{
+                        //    corrCoefPoint -= difference;
+                        //    if (corrCoefPoint < 0)
+                        //    {
+                        //        corrCoefPoint = 0;
+                        //    }
+                        //}
+                        //else if (corrCoefPoint < 0)
+                        //{
+                        //    corrCoefPoint += difference;
+                        //    if (corrCoefPoint > 0)
+                        //    {
+                        //        corrCoefPoint = 0;
+                        //    }
+                        //}
+
+                        //corrCoefPoint = Math.Abs(corrCoefPoint);
+
+                        //corrPoints.Add(corrCoefPoint);
+                        //firstSegment.Clear();
+                        //secondSegment.Clear();
                     }
                     catch
                     {
@@ -146,8 +161,35 @@
                 }
             }
 
+            for (int i = 0; i < Segments.Count; i++)
+            {
+                //double difference = Segments[i][Segments[i].Count - 1];
+                double difference = 0;
+                double corrCoefPoint = Correlation.Pearson(Segments[0], Segments[i]);
+
+                if (corrCoefPoint > 0)
+                {
+                    corrCoefPoint -= difference;
+                    if (corrCoefPoint < 0)
+                    {
+                        corrCoefPoint = 0;
+                    }
+                }
+                else if (corrCoefPoint < 0)
+                {
+                    corrCoefPoint += difference;
+                    if (corrCoefPoint > 0)
+                    {
+                        corrCoefPoint = 0;
+                    }
+                }
+
+                corrCoefPoint = Math.Abs(corrCoefPoint);
+
+                corrPoints.Add(corrCoefPoint);
+            }
+
             return corrPoints;
         }
-
     }
 }
