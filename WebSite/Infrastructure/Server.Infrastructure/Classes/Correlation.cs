@@ -5,6 +5,7 @@
     using System.Text;
     using MathNet.Numerics;
     using MathNet.Numerics.Statistics;
+    using System.Linq;
 
     public static class Correlation
     {
@@ -58,6 +59,7 @@
             List<double> secondSegment = new List<double>();
             List<double> corrPoints = new List<double>();
             List<List<double>> Segments = new List<List<double>>();
+            List<double> Difference = new List<double>();
             for (int i = 0; i < rPeaks.Count - 2; i++)
             {
                 int j = i + 1;
@@ -123,9 +125,15 @@
 
                                 difference = (endCount - startCount) / ((endCount + startCount) / 2);
                             }
-                            secondSegment.Add(difference);
-                        } // Проверка на одинаковое кол-во элементов
 
+                            secondSegment.Add(difference);
+                        }
+                        else
+                        {
+                            difference = 0;
+                        }
+
+                        Difference.Add(difference);
                         Segments.Add(secondSegment);
                         firstSegment.Clear();
                         secondSegment.Clear();
@@ -163,8 +171,7 @@
 
             for (int i = 0; i < Segments.Count; i++)
             {
-                //double difference = Segments[i][Segments[i].Count - 1];
-                double difference = 0;
+                double difference = Difference[i];
                 double corrCoefPoint = Correlation.Pearson(Segments[0], Segments[i]);
 
                 if (corrCoefPoint > 0)
