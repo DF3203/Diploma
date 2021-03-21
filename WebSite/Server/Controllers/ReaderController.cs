@@ -13,7 +13,6 @@
     using Server.Infrastructure.Classes;
     using Server.Infrastructure.Logic;
     using Server.Infrastructure.Models;
-    using RPeaksRecognizeDLL;
     using System.Security.Claims;
 
     [Produces("application/json")]
@@ -33,7 +32,7 @@
             try
             {
                 //все точки
-                List<string> data = GetData.ReadFile(id, this.hostingEnvironment);
+                List<string> data = GetData.ReadFileString(id, this.hostingEnvironment);
                 //все пики
                 List<string> peaks = GetData.GetRPeaks(id, this.hostingEnvironment);
                 //все результаті корреляции

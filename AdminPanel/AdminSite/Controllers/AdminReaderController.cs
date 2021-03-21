@@ -82,7 +82,7 @@
                    try
                    {
                        //data - все точки
-                       data = Reader.GetData(stream);
+                       data = Reader.GetPoints(path);
                    }
                    catch (Exception ex)
                    {
@@ -126,7 +126,7 @@
                     try
                     {
                         //Correlation.Pearson(new List<double> { 1, 2, 3 }, new List<double> { 1, 2 });
-                        data = Reader.GetData(stream);
+                        data = Reader.GetPoints(path);
                     }
                     catch (Exception ex)
                     {
@@ -154,7 +154,7 @@
                         //peaksDetection.GetRPeaks(path);
                         //peaks = peaksDetection.RPeaksToList(path2);
 
-                        PeaksDetection.GetRPeaks(path, path2);
+                        peaks = PeaksDetection.GetRPeaks(Reader.StringToPointPair(data));
                         // peaks = PeaksDetection.RPeaksToList(path2);
                     }
                     catch (Exception ex)

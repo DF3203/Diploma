@@ -3,58 +3,111 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using ZedGraph;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
 
     public static class Reader
     {
-        //список всех точек
-        static List<string> Points { get; set; } = new List<string>();
 
-        //алгоритм считівания файла, по заданному пути stream
-        public static List<string> GetData(FileStream stream)
+        /// <summary>
+        /// Метод фильтрациии сигнала
+        /// </summary>
+        /// <param name="indata">Массив координат Y</param>
+        /// <param name="deltaTimeinsec"></param>
+        /// <param name="CutOff"></param>
+        /// <returns>Сглашенный массив Y</returns>
+        public static double[] Butterworth(double[] indata, double deltaTimeinsec, double CutOff)
         {
-            using (stream)
+            if (indata == null) return null;
+            if (CutOff == 0) return indata;
+
+            double Samplingrate = 1 / deltaTimeinsec;
+            long dF2 = indata.Length - 1;        // The data range is set with dF2
+            double[] Dat2 = new double[dF2 + 4]; // Array with 4 extra points front and back
+            double[] data = indata; // Ptr., changes passed data
+
+            // Copy indata to Dat2
+            for (long r = 0; r < dF2; r++)
             {
-                int hexIn;
-                string hex = "";
-
-                //считіваем по два символа и заносим значение в переменную hex в 16-ричном формате
-                for (int i = 0; (hexIn = stream.ReadByte()) != -1; i++)
-                {
-                    hex += string.Format("{0:X2}", hexIn);
-                }
-
-                //применяем метод, которій описан ниже и разбиваем точку на две части, 
-                //и меняет половинки местами, то есть из точки bd07 строим точку 07bd
-                foreach (var item in SplitString(hex))
-                {
-                    string point = "";
-                    point = item.Substring(2, 2) + item.Substring(0, 2);
-                    Points.Add(Convert.ToInt32(point,16).ToString());
-                }
-
-                return Points;
+                Dat2[2 + r] = indata[r];
             }
+            Dat2[1] = Dat2[0] = indata[0];
+            Dat2[dF2 + 3] = Dat2[dF2 + 2] = indata[dF2];
+            double wc = Math.Tan(CutOff * Math.PI / Samplingrate);
+            double k1 = 1.414213562 * wc; // Sqrt(2) * wc
+            double k2 = wc * wc;
+            double a = k2 / (1 + k1 + k2);
+            double b = 2 * a;
+            double c = a;
+            double k3 = b / k2;
+            double d = -2 * a + k3;
+            double e = 1 - (2 * a) - k3;
+
+            // RECURSIVE TRIGGERS - ENABLE filter is performed (first, last points constant)
+            double[] DatYt = new double[dF2 + 4];
+            DatYt[1] = DatYt[0] = indata[0];
+            for (long s = 2; s < dF2 + 2; s++)
+            {
+                DatYt[s] = a * Dat2[s] + b * Dat2[s - 1] + c * Dat2[s - 2]
+                           + d * DatYt[s - 1] + e * DatYt[s - 2];
+            }
+            DatYt[dF2 + 3] = DatYt[dF2 + 2] = DatYt[dF2 + 1];
+
+            // FORWARD filter
+            double[] DatZt = new double[dF2 + 2];
+            DatZt[dF2] = DatYt[dF2 + 2];
+            DatZt[dF2 + 1] = DatYt[dF2 + 3];
+            for (long t = -dF2 + 1; t <= 0; t++)
+            {
+                DatZt[-t] = a * DatYt[-t + 2] + b * DatYt[-t + 3] + c * DatYt[-t + 4]
+                            + d * DatZt[-t + 1] + e * DatZt[-t + 2];
+            }
+
+            // Calculated points copied for return
+            for (long p = 0; p < dF2; p++)
+            {
+                data[p] = DatZt[p];
+            }
+
+            return data;
         }
 
-        //разбивает строку по 4 символа, так как одно значение точки хранится в 16-формате, занимает 4 символа
-        public static List<string> SplitString(string str)
+        /// <summary>
+        /// Получение точек
+        /// </summary>
+        /// <param name="path">Путь файла .dat</param>
+        /// <returns>Список точек X, Y</returns>
+        public static List<string> GetPoints(string path)
         {
-            List<string> list = new List<string>();
-            int i = 0;
-            while (i < str.Length - 1)
+            List<string> fil = new List<string>(File.ReadAllLines(path));
+            List<double> values = new List<double>();
+            List<string> valuesString = new List<string>();
+            foreach (string str in fil)
             {
-                try
+                string[] nums = str.Split(new char[] { ' ' });
+                foreach (var v in nums)
                 {
-                    list.Add(str.Substring(i, 4));
-                    i += 4;
+                    values.Add(UInt16.Parse(v, System.Globalization.NumberStyles.HexNumber) * (-1) + 65000);
                 }
-                catch { break; }
             }
-            return list;
+            values = Butterworth(values.ToArray(), 0.004, 10).ToList();
+            foreach (double item in values)
+            {
+                valuesString.Add(item.ToString());
+            }
+            return valuesString;
         }
 
+        public static PointPairList StringToPointPair(List<string> values)
+        {
+            PointPairList points = new PointPairList();
+            for (int i = 0; i < values.Count; i++)
+            {
+                points.Add(i, Convert.ToDouble(values[i]));
+            }
 
-
+            return points;
+        }
     }
 }
