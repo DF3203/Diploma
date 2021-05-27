@@ -85,11 +85,7 @@
             List<string> valuesString = new List<string>();
             foreach (string str in fil)
             {
-                string[] nums = str.Split(new char[] { ' ' });
-                foreach (var v in nums)
-                {
-                    values.Add(UInt16.Parse(v, System.Globalization.NumberStyles.HexNumber) * (-1) + 65000);
-                }
+                    values.Add(Convert.ToDouble(str));
             }
             values = Butterworth(values.ToArray(), 0.004, 10).ToList();
             foreach (double item in values)

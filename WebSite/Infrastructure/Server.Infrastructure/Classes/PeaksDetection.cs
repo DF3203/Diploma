@@ -26,7 +26,7 @@
                     maxval = pointe.Y;
                 }
             }
-            double Rcutter = maxval * 0.6;
+            double Rcutter = maxval * 0.9;
             List<string> rpeaks = new List<string>();
             double Ry = 0, Rx = 0;
             bool IsUp = false;
