@@ -55,25 +55,25 @@
         /// <returns> Точки корреляции </returns>
         public static List<double> CorrelationPoints(List<string> allPoints, List<string> rPeaks)
         {
-            List<double> firstSegment = new List<double>();
-            List<double> secondSegment = new List<double>();
+            List<double> Segment = new List<double>();
             List<double> corrPoints = new List<double>();
             List<List<double>> Segments = new List<List<double>>();
             List<double> Difference = new List<double>();
             for (int i = 0; i < rPeaks.Count - 2; i++)
             {
                 int j = i + 1;
-                for (int g = j; g < rPeaks.Count - 1; g++)
+                for (int n = Convert.ToInt32(rPeaks[i]); n <= Convert.ToInt32(rPeaks[j]); n++)
+                {   
+                    Segment.Add(Convert.ToDouble(allPoints[n]));
+                }
+                /*for (int g = j; g < rPeaks.Count - 1; g++)
                 {
                     int m = g + 1;
                     try
                     {
                         double difference = 0;
 
-                        for (int n = Convert.ToInt32(rPeaks[i]); n <= Convert.ToInt32(rPeaks[j]); n++)
-                        {
-                            firstSegment.Add(Convert.ToDouble(allPoints[n]));
-                        }
+
 
                         for (int n = Convert.ToInt32(rPeaks[g]); n <= Convert.ToInt32(rPeaks[m]); n++)
                         {
@@ -132,43 +132,34 @@
                         {
                             difference = 0;
                         }
+                Difference.Add(difference);*/
+                Segments.Add(new List<double>(Segment));
+                Segment.Clear();
+            }
+            int maxcount = 0;
+            foreach (List<double> seg in Segments) 
+            {
+                if (seg.Count > maxcount) maxcount = seg.Count;
+            }
+            foreach (List<double> seg in Segments)
+            {
+                double difference = 0;
+                int startCount = seg.Count;
+                int numberOfPoint = 0;
+                while (seg.Count < maxcount) {
+                    double newBetweenPoint = (seg[numberOfPoint] + seg[numberOfPoint + 1]) / 2;
+                    seg.Insert(numberOfPoint + 1, newBetweenPoint);
+                    numberOfPoint += 2;
 
-                        Difference.Add(difference);
-                        Segments.Add(secondSegment);
-                        firstSegment.Clear();
-                        secondSegment.Clear();
-                        //double corrCoefPoint = Correlation.Pearson(firstSegment, secondSegment);
-
-                        //if (corrCoefPoint > 0)
-                        //{
-                        //    corrCoefPoint -= difference;
-                        //    if (corrCoefPoint < 0)
-                        //    {
-                        //        corrCoefPoint = 0;
-                        //    }
-                        //}
-                        //else if (corrCoefPoint < 0)
-                        //{
-                        //    corrCoefPoint += difference;
-                        //    if (corrCoefPoint > 0)
-                        //    {
-                        //        corrCoefPoint = 0;
-                        //    }
-                        //}
-
-                        //corrCoefPoint = Math.Abs(corrCoefPoint);
-
-                        //corrPoints.Add(corrCoefPoint);
-                        //firstSegment.Clear();
-                        //secondSegment.Clear();
-                    }
-                    catch
+                    if (numberOfPoint > seg.Count - 3) // Если список точек подходит к концу, а операция не закончена номер точки обнуляется
                     {
-                        // break;
+                        numberOfPoint = 0;
                     }
                 }
+                int endCount = seg.Count;
+                difference = (endCount - startCount) / ((endCount + startCount) / 2);
+                Difference.Add(difference);
             }
-
             for (int i = 0; i < Segments.Count; i++)
             {
                 double difference = Difference[i];
@@ -195,7 +186,6 @@
 
                 corrPoints.Add(corrCoefPoint);
             }
-
             return corrPoints;
         }
     }

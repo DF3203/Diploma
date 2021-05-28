@@ -87,7 +87,7 @@
             {
                     values.Add(Convert.ToDouble(str));
             }
-            values = Butterworth(values.ToArray(), 0.004, 10).ToList();
+            values = Butterworth(values.ToArray(), 0.01, 5).ToList();
             foreach (double item in values)
             {
                 valuesString.Add(item.ToString());
