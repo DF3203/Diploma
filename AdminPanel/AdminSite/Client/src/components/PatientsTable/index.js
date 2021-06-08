@@ -72,7 +72,7 @@ const PatientsTable = ({
         <Input placeholder="Мобильный телефон" value={editValue.phoneNumber} onChange={handleChangeEditInput} name="phoneNumber"/>
         <Input placeholder="Домашний телефон" value={editValue.homeNumber} onChange={handleChangeEditInput} name="homeNumber"/>
         <Input placeholder="E-mail" value={editValue.email} onChange={handleChangeEditInput} name="email"/>
-        <Input type="file" name="file" onChange={handleUpload} style={{border: '0'}}/>
+        <Input type="file" name="file" onChange={handleUpload} style={{border: '0'}}/> //а
         <Button onClick={handleDelete}>Удалить пациента</Button>
       </Modal>}
       <Table columns={columns} data={data} isEditVisiable={isEditVisiable} setIsEditVisiable={setIsEditVisiable} setEditValue={setEditValue} />     
